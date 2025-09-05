@@ -45,15 +45,22 @@ export class Game{
   setTranslator(fn){ this.t = typeof fn === 'function' ? fn : (k)=>k; }
 
   _resizeCanvas(){
-    const size = Math.min(640, Math.floor(window.innerWidth-80));
+    const canvas = this.ctx.canvas;
+    const parent = canvas.parentElement;
+    const parentW = parent?.clientWidth || window.innerWidth;
+    const padding = 32; // 近似扣除容器内边距
+    const avail = Math.max(0, Math.floor(parentW - padding));
+
+    const MAX_W = 520; // 比之前更窄
+    const MIN_W = 280; // 允许更小以适配小屏
+
     const dpr = window.devicePixelRatio || 1;
-    const px = Math.max(360, size);
+    const px = Math.min(MAX_W, Math.max(MIN_W, avail));
     const cellPx = Math.floor(px / this.gridSize);
-    this.cellPx = Math.max(12, Math.min(40, cellPx));
+    this.cellPx = Math.max(12, Math.min(36, cellPx)); // 上限略降，整体更紧凑
 
     const w = this.gridSize * this.cellPx;
-    const h = this.gridSize * this.cellPx;
-    const canvas = this.ctx.canvas;
+    const h = w; // 方形画布
     canvas.width = Math.floor(w*dpr);
     canvas.height = Math.floor(h*dpr);
     canvas.style.width = `${w}px`;
@@ -91,6 +98,20 @@ export class Game{
         this.obstacles.push(cell);
       }
     }
+  }
+
+  // 兼容不支持 roundRect 的环境
+  _roundRectPath(c, x, y, w, h, r){
+    const rr = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+    c.moveTo(x + rr, y);
+    c.lineTo(x + w - rr, y);
+    c.arcTo(x + w, y, x + w, y + rr, rr);
+    c.lineTo(x + w, y + h - rr);
+    c.arcTo(x + w, y + h, x + w - rr, y + h, rr);
+    c.lineTo(x + rr, y + h);
+    c.arcTo(x, y + h, x, y + h - rr, rr);
+    c.lineTo(x, y + rr);
+    c.arcTo(x, y, x + rr, y, rr);
   }
 
   _randEmptyCell(){
@@ -195,15 +216,15 @@ export class Game{
     if(this.obstaclesEnabled){
       c.fillStyle = 'rgba(2,132,199,0.8)';
       this.obstacles.forEach(p=>{
-        c.beginPath(); c.roundRect(p.x*cell+2, p.y*cell+2, cell-4, cell-4, 6); c.fill();
+        const rx = p.x*cell+2, ry = p.y*cell+2, rw = cell-4, rh = cell-4, rr = 6;
+        c.beginPath();
+        if (typeof c.roundRect === 'function') {
+          c.roundRect(rx, ry, rw, rh, rr);
+        } else {
+          this._roundRectPath(c, rx, ry, rw, rh, rr);
+        }
+        c.fill();
       });
-    }
-
-    // food
-    if(this.food){
-      const g = c.createLinearGradient(0,0,cell,cell);
-      g.addColorStop(0,'#f59e0b'); g.addColorStop(1,'#ef4444');
-      c.fillStyle = g; c.beginPath(); c.arc(this.food.x*cell+cell/2, this.food.y*cell+cell/2, cell*0.35, 0, Math.PI*2); c.fill();
     }
 
     // snake
@@ -211,7 +232,14 @@ export class Game{
     const bodyColor = '#34d399';
     this.snake.forEach((p,i)=>{
       c.fillStyle = i===0?headColor:bodyColor;
-      c.beginPath(); c.roundRect(p.x*cell+2, p.y*cell+2, cell-4, cell-4, i===0?8:6); c.fill();
+      const rx = p.x*cell+2, ry = p.y*cell+2, rw = cell-4, rh = cell-4, rr = i===0?8:6;
+      c.beginPath();
+      if (typeof c.roundRect === 'function') {
+        c.roundRect(rx, ry, rw, rh, rr);
+      } else {
+        this._roundRectPath(c, rx, ry, rw, rh, rr);
+      }
+      c.fill();
     });
 
     // 蛇头眼睛
