@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Snake Game</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app__header glass">
+        <div class="brand">
+          <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0%" stop-color="#6ee7f9"/>
+                <stop offset="100%" stop-color="#a78bfa"/>
+              </linearGradient>
+            </defs>
+            <path d="M10 42c8 12 24 12 32 0 6-9 1-20-10-20-6 0-10 4-10 8 0 3 3 6 6 6 5 0 8-6 4-10" fill="none" stroke="url(#g1)" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="39" cy="20" r="2.5" fill="#111"/>
+          </svg>
+          <h1 id="brandTitle">Snake Game</h1>
+        </div>
+        <div class="toolbar">
+          <label>
+            <span id="labelTheme">主题</span>
+            <select id="themeSelect" aria-label="主题切换">
+              <option value="light">浅色</option>
+              <option value="dark">深色</option>
+              <option value="neon">霓虹</option>
+            </select>
+          </label>
+          <label>
+            <span id="labelLanguage">语言</span>
+            <select id="languageSelect" aria-label="语言切换">
+              <option value="zh">中文</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+        </div>
+      </header>
+
+      <main class="app__main">
+        <aside class="panel glass">
+          <div class="panel__group">
+            <div class="scoreboard">
+              <div><span id="labelScore">分数：</span><span id="score">0</span></div>
+              <div><span id="labelHighScore">最高：</span><span id="highScore">0</span></div>
+            </div>
+            <div class="actions">
+              <button id="btnStart" class="btn primary">开始</button>
+              <button id="btnPause" class="btn">暂停</button>
+              <button id="btnReset" class="btn danger">重开</button>
+            </div>
+          </div>
+
+          <div class="panel__group settings">
+            <h3 id="settingsTitle">设置</h3>
+            <label>
+              <span id="speedLabel">速度</span>
+              <input id="speedRange" type="range" min="5" max="20" value="10" />
+              <span id="speedVal">10</span>
+              <span id="speedUnit">格/秒</span>
+            </label>
+            <label>
+              <span id="labelBoardSize">地图尺寸</span>
+              <select id="boardSize">
+                <option value="16">16 × 16</option>
+                <option value="20" selected>20 × 20</option>
+                <option value="24">24 × 24</option>
+                <option value="28">28 × 28</option>
+              </select>
+            </label>
+            <label class="switch">
+              <input id="wrapMode" type="checkbox" checked />
+              <span id="labelWrapMode">穿墙模式（关掉则撞墙即死）</span>
+            </label>
+            <label class="switch">
+              <input id="obstacleToggle" type="checkbox" />
+              <span id="labelObstacles">随机障碍</span>
+            </label>
+            <label class="switch">
+              <input id="soundToggle" type="checkbox" checked />
+              <span id="labelSound">音效</span>
+            </label>
+          </div>
+
+          <div class="panel__group tips">
+            <h3 id="tipsTitle">操作</h3>
+            <p id="tipsKeyboard">键盘：W/A/S/D 或 方向键</p>
+            <p id="tipsMobile">移动端：滑动方向或屏幕方向键</p>
+          </div>
+        </aside>
+
+        <section class="stage glass">
+          <canvas id="gameCanvas" width="520" height="520" aria-label="游戏画布" role="img"></canvas>
+          <div id="mobileControls" class="dpad">
+            <button data-dir="up" aria-label="上">▲</button>
+            <div class="dpad__middle">
+              <button data-dir="left" aria-label="左">◀</button>
+              <button data-dir="right" aria-label="右">▶</button>
+            </div>
+            <button data-dir="down" aria-label="下">▼</button>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app__footer glass">
+        <small id="footerText">© 2025 Snake Game · 高级版</small>
+      </footer>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
